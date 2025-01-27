@@ -3,7 +3,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
 
 @step
-def ingest_and_embed(data_path: str) -> str:
+def ingest_and_embed(data_path: str) -> VectorStoreIndex:
     documents = SimpleDirectoryReader(data_path).load_data()
     index = VectorStoreIndex.from_documents(documents)
-    return "index"
+    return index
