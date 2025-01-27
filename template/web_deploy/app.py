@@ -1,7 +1,8 @@
-import chainlit as cl
-from zenml.client import Client
 import os
+
+import chainlit as cl
 from traceloop.sdk import Traceloop
+from zenml.client import Client
 
 TRACELOOP_API_KEY = os.getenv("TRACELOOP_API_KEY")
 

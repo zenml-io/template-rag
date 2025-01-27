@@ -1,5 +1,5 @@
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from zenml import step
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
 
 @step

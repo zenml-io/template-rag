@@ -1,8 +1,9 @@
-from zenml import step
-from traceloop.sdk import Traceloop
-from llama_index.core.base.base_query_engine import BaseQueryEngine
 import logging
 import os
+
+from llama_index.core.base.base_query_engine import BaseQueryEngine
+from traceloop.sdk import Traceloop
+from zenml import step
 
 logger = logging.getLogger(__name__)
 
