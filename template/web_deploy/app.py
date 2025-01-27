@@ -1,11 +1,16 @@
 import chainlit as cl
 from zenml.client import Client
+import os
+from traceloop.sdk import Traceloop
+
+TRACELOOP_API_KEY = os.getenv("TRACELOOP_API_KEY")
 
 
 @cl.on_chat_start
 async def init() -> None:
     """Initialize the chat session by loading the query engine."""
     try:
+        Traceloop.init(api_key=TRACELOOP_API_KEY)
         # Load the query engine and store it in the user session
         artifact = Client().get_artifact_version("7040849f-53c3-44d6-95e0-31949d28a773")
         query_engine = artifact.load()
