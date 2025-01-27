@@ -1,0 +1,3 @@
+zenml>=0.73.0
+llama-index
+chromadb
