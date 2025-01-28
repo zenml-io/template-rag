@@ -15,7 +15,8 @@ async def init() -> None:
         # Load the query engine and store it in the user session
         from zenml.client import Client
 
-        artifact = Client().get_artifact_version("3b32178a-0bec-4c46-89d3-8359e01acc83")
+        model = Client().get_model_version("ZenMLDocsAssistant", "production")
+        artifact = model.get_artifact("assistant")
         query_engine = artifact.load()
 
         cl.user_session.set("query_engine", query_engine)
