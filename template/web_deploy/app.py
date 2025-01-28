@@ -13,8 +13,11 @@ async def init() -> None:
     try:
         Traceloop.init(api_key=TRACELOOP_API_KEY)
         # Load the query engine and store it in the user session
-        artifact = Client().get_artifact_version("7040849f-53c3-44d6-95e0-31949d28a773")
+        from zenml.client import Client
+
+        artifact = Client().get_artifact_version("3b32178a-0bec-4c46-89d3-8359e01acc83")
         query_engine = artifact.load()
+
         cl.user_session.set("query_engine", query_engine)
 
         # Send initial message
