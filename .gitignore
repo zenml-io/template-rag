@@ -174,3 +174,4 @@ cython_debug/
 .zen/
 template/design/
 template/data/vector_store/
+template/data
