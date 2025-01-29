@@ -38,7 +38,7 @@ def mock_store_dir(tmp_path):
 def test_ingest_and_embed_success(mock_docs_dir, mock_store_dir):
     """Test successful document ingestion and embedding."""
     config = ingest_and_embed(
-        data_path=mock_docs_dir,
+        docs_path=mock_docs_dir,
         store_path=mock_store_dir,
         store_type=VectorStoreType.FAISS,
     )
@@ -56,7 +56,7 @@ def test_ingest_and_embed_empty_dir(tmp_path):
 
     with pytest.raises(FileNotFoundError, match="No markdown files found"):
         ingest_and_embed(
-            data_path=str(empty_dir),
+            docs_path=str(empty_dir),
             store_path=str(tmp_path / "store"),
         )
 
@@ -65,7 +65,7 @@ def test_ingest_and_embed_invalid_store_type(mock_docs_dir, mock_store_dir):
     """Test ingestion with unsupported store type."""
     with pytest.raises(UnsupportedStoreError, match="Unsupported vector store type"):
         ingest_and_embed(
-            data_path=mock_docs_dir,
+            docs_path=mock_docs_dir,
             store_path=mock_store_dir,
             store_type=VectorStoreType.PINECONE,
         )
@@ -73,9 +73,12 @@ def test_ingest_and_embed_invalid_store_type(mock_docs_dir, mock_store_dir):
 
 def test_ingest_and_embed_invalid_chunk_settings(mock_docs_dir, mock_store_dir):
     """Test ingestion with invalid chunk settings."""
-    with pytest.raises(ValueError, match="chunk_overlap must be less than chunk_size"):
+    with pytest.raises(
+        ValueError,
+        match="Got a larger chunk overlap .* than chunk size .*, should be smaller",
+    ):
         ingest_and_embed(
-            data_path=mock_docs_dir,
+            docs_path=mock_docs_dir,
             store_path=mock_store_dir,
             chunk_size=100,
             chunk_overlap=200,
@@ -86,6 +89,6 @@ def test_ingest_and_embed_nonexistent_dir():
     """Test ingestion with non-existent directory."""
     with pytest.raises(FileNotFoundError):
         ingest_and_embed(
-            data_path="/nonexistent/path",
+            docs_path="/nonexistent/path",
             store_path="/tmp/store",
         )
