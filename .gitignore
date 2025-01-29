@@ -173,3 +173,4 @@ cython_debug/
 # ZenML
 .zen/
 template/design/
+template/data/vector_store/
