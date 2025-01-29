@@ -17,16 +17,14 @@ from config.constants import (
     MIN_TEMPERATURE,
     SUPPORTED_EMBEDDING_MODELS,
     SUPPORTED_LLM_MODELS,
-    SUPPORTED_VECTOR_STORES,
+    VectorStoreType,
 )
 
 
 class VectorStoreConfig(BaseModel):
     """Configuration for vector store access."""
 
-    store_type: SUPPORTED_VECTOR_STORES = Field(
-        description="Type of vector store to use"
-    )
+    store_type: VectorStoreType = Field(description="Type of vector store to use")
     store_path: str = Field(
         description="Local path or remote URI for vector store data"
     )
@@ -40,7 +38,7 @@ class VectorStoreConfig(BaseModel):
     chunk_size: Optional[int] = Field(
         default=1000,
         description="Size of text chunks for splitting documents",
-        gt=MIN_CHUNK_SIZE,
+        ge=MIN_CHUNK_SIZE,
         lt=MAX_CHUNK_SIZE,
     )
     chunk_overlap: Optional[int] = Field(

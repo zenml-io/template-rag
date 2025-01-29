@@ -8,7 +8,12 @@ langchain_openai
 unstructured[md]
 rich
 dill
-faiss-cpu
+
+# Vector store backends (comment out what you don't need)
+faiss-cpu  # For CPU-based FAISS
+# faiss-gpu  # For GPU-based FAISS (uncomment if needed)
+# chromadb  # For Chroma vector store
+# pinecone-client  # For Pinecone vector store
 
 # Test dependencies
 pytest>=7.4.0

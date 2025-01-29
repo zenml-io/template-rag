@@ -1,5 +1,6 @@
 """Constants used throughout the template."""
 
+from enum import Enum
 from typing import Literal
 
 # Vector store settings
@@ -7,8 +8,16 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 MAX_SEARCH_RESULTS = 4
 
+
 # Supported model types
-SUPPORTED_VECTOR_STORES = Literal["faiss", "chroma", "pinecone"]
+class VectorStoreType(str, Enum):
+    """Supported vector store types."""
+
+    FAISS = "faiss"
+    CHROMA = "chroma"
+    PINECONE = "pinecone"
+
+
 SUPPORTED_EMBEDDING_MODELS = Literal["text-embedding-3-small", "text-embedding-3-large"]
 SUPPORTED_LLM_MODELS = Literal["gpt-3.5-turbo", "gpt-4"]
 
