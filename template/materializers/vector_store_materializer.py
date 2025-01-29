@@ -1,12 +1,17 @@
+"""Materializer to handle InMemoryVectorStore objects."""
+
 import os
 from typing import Any, ClassVar, Optional, Tuple, Type
 
 import dill
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import OpenAIEmbeddings
 from zenml.artifact_stores.base_artifact_store import BaseArtifactStore
 from zenml.enums import ArtifactType
 from zenml.materializers.base_materializer import BaseMaterializer
+
+from config.constants import MAX_SEARCH_RESULTS
+from config.models import EMBEDDINGS
+from utils.vector_store import extract_store_data
 
 
 class InMemoryVectorStoreMaterializer(BaseMaterializer):
@@ -37,9 +42,8 @@ class InMemoryVectorStoreMaterializer(BaseMaterializer):
         with self.artifact_store.open(self.store_path, "rb") as f:
             data = dill.load(f)
 
-        # Recreate vector store from scratch
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        vector_store = InMemoryVectorStore(embeddings)
+        # Create vector store from scratch
+        vector_store = InMemoryVectorStore(EMBEDDINGS)
 
         # Add the documents back with their embeddings
         vector_store.add_texts(
@@ -55,21 +59,10 @@ class InMemoryVectorStoreMaterializer(BaseMaterializer):
         Args:
             vector_store: The vector store to write.
         """
-        # Get all documents through similarity search
-        # This will return all documents in the store
-        results = vector_store.similarity_search_with_score("", k=10000)
-
         # Extract texts, embeddings and metadata
-        texts = []
-        metadatas = []
-        embeddings = []
-
-        for doc, _ in results:
-            texts.append(doc.page_content)
-            metadatas.append(doc.metadata)
-            # Get embedding for this text
-            embeddings.append(vector_store.embeddings.embed_query(doc.page_content))
-
+        texts, metadatas, embeddings = extract_store_data(
+            vector_store, k=MAX_SEARCH_RESULTS
+        )
         data = {"texts": texts, "embeddings": embeddings, "metadatas": metadatas}
 
         with self.artifact_store.open(self.store_path, "wb") as f:

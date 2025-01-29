@@ -1,40 +1,21 @@
+"""Materializer to handle CompiledStateGraph objects."""
+
 import os
-from typing import Any, ClassVar, List, Optional, Tuple, Type
+from typing import Any, ClassVar, Optional, Tuple, Type
 
 import dill
-from langchain import hub
 from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langgraph.graph import START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
-from typing_extensions import TypedDict
 from zenml.artifact_stores.base_artifact_store import BaseArtifactStore
 from zenml.enums import ArtifactType
 from zenml.materializers.base_materializer import BaseMaterializer
 
-
-class State(TypedDict):
-    question: str
-    context: List[Document]
-    answer: str
-
-
-def create_retrieve(vector_store):
-    def retrieve(state: State):
-        retrieved_docs = vector_store.similarity_search(state["question"])
-        return {"context": retrieved_docs}
-
-    return retrieve
-
-
-def generate(state: State):
-    docs_content = "\n\n".join(doc.page_content for doc in state["context"])
-    prompt = hub.pull("rlm/rag-prompt")
-    messages = prompt.invoke({"question": state["question"], "context": docs_content})
-    llm = ChatOpenAI(model="gpt-4o-mini")
-    response = llm.invoke(messages)
-    return {"answer": response.content}
+from config.constants import MAX_SEARCH_RESULTS
+from config.models import EMBEDDINGS
+from custom_types.state import State
+from utils.graph import generate
+from utils.vector_store import create_retrieve, find_vector_store
 
 
 class StateGraphMaterializer(BaseMaterializer):
@@ -65,14 +46,9 @@ class StateGraphMaterializer(BaseMaterializer):
         with self.artifact_store.open(self.store_path, "rb") as f:
             data = dill.load(f)
 
-        # Reconstruct the vector store
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        texts = data["texts"]
-        metadatas = data["metadatas"]
-
         # Create a FAISS vector store with the documents
         vector_store = FAISS.from_texts(
-            texts=texts, embedding=embeddings, metadatas=metadatas
+            texts=data["texts"], embedding=EMBEDDINGS, metadatas=data["metadatas"]
         )
 
         # Build the graph
@@ -90,55 +66,6 @@ class StateGraphMaterializer(BaseMaterializer):
             graph: The state graph to write.
         """
         # Extract the vector store from the graph's state
-        vector_store = None
-
-        # Helper function to recursively search for vector store in object attributes
-        def find_vector_store(obj, visited=None):
-            if visited is None:
-                visited = set()
-
-            # Avoid circular references
-            obj_id = id(obj)
-            if obj_id in visited:
-                return None
-            visited.add(obj_id)
-
-            # Check if this object has similarity_search method
-            if hasattr(obj, "similarity_search"):
-                return obj
-
-            # If it's a function, check its closure
-            if isinstance(obj, type(lambda: None)):
-                if hasattr(obj, "__closure__") and obj.__closure__:
-                    for cell in obj.__closure__:
-                        result = find_vector_store(cell.cell_contents, visited)
-                        if result:
-                            return result
-
-            # If it's a dictionary, check its values
-            elif isinstance(obj, dict):
-                for value in obj.values():
-                    result = find_vector_store(value, visited)
-                    if result:
-                        return result
-
-            # If it has __dict__, check all its attributes
-            elif hasattr(obj, "__dict__"):
-                for value in obj.__dict__.values():
-                    result = find_vector_store(value, visited)
-                    if result:
-                        return result
-
-            # If it's a list or tuple, check its elements
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    result = find_vector_store(item, visited)
-                    if result:
-                        return result
-
-            return None
-
-        # Search for vector store in graph nodes and edges
         vector_store = find_vector_store(graph)
 
         if vector_store is None:
@@ -148,7 +75,7 @@ class StateGraphMaterializer(BaseMaterializer):
 
         # Extract just the documents and their metadata
         documents = []
-        for doc in vector_store.similarity_search("", k=1000):  # Get all documents
+        for doc in vector_store.similarity_search("", k=MAX_SEARCH_RESULTS):
             documents.append(doc)
 
         # Store only the essential data
