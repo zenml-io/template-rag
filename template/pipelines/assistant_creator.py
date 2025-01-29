@@ -6,6 +6,12 @@ from steps.ingest_and_embed import ingest_and_embed
 from zenml import Model, pipeline
 from zenml.config import DockerSettings
 
+from config.constants import (
+    DEFAULT_DOCS_PATH,
+    DEFAULT_LLM_MODEL,
+    DEFAULT_QA_TEMPLATE,
+)
+
 model = Model(
     name="ZenMLDocsAssistant",
     description="This is an assistant that answers questions about the ZenML documentation",
@@ -30,19 +36,30 @@ model = Model(
         ),
     },
 )
-def create_assistant_pipeline():
+def create_assistant_pipeline(
+    docs_path: str = DEFAULT_DOCS_PATH,
+    model: str = DEFAULT_LLM_MODEL,
+    temperature: float = 0.7,
+    qa_template: str = DEFAULT_QA_TEMPLATE,
+):
     """Create a RAG assistant pipeline.
 
-    This pipeline:
-    1. Ingests documents and creates embeddings
-    2. Creates a RAG assistant using the embeddings
-    3. Evaluates the assistant's performance
+    Args:
+        docs_path: Path to the documents to ingest
+        model: Name of the LLM model to use
+        temperature: Temperature for LLM generation
+        qa_template: Template for QA prompts
     """
     # First create the vector store with document embeddings
-    vector_store_config = ingest_and_embed(data_path="data/")
+    vector_store_config = ingest_and_embed(docs_path=docs_path)
 
     # Create the assistant using the vector store
-    assistant_config = create_assistant(vector_store_config=vector_store_config)
+    assistant_config = create_assistant(
+        vector_store_config=vector_store_config,
+        model=model,
+        temperature=temperature,
+        qa_template=qa_template,
+    )
 
     # Evaluate the assistant
     evaluate_assistant(config=assistant_config)
