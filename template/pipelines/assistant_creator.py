@@ -1,9 +1,9 @@
 import os
+
 from steps.create_assistant import create_assistant
 from steps.evaluate_assistant import evaluate_assistant
 from steps.ingest_and_embed import ingest_and_embed
-from zenml import pipeline
-from zenml import Model
+from zenml import Model, pipeline
 from zenml.config import DockerSettings
 
 model = Model(
@@ -19,19 +19,30 @@ model = Model(
 
 
 @pipeline(
-    enable_cache=False,
+    enable_cache=True,
     model=model,
     settings={
         "docker": DockerSettings(
             requirements="requirements.txt",
             environment={
-                "TRACELOOP_API_KEY": os.getenv("TRACELOOP_API_KEY"),
                 "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
             },
         ),
     },
 )
 def create_assistant_pipeline():
-    index = ingest_and_embed(data_path="data/")
-    assistant = create_assistant(index)
-    evaluate_assistant(assistant)
+    """Create a RAG assistant pipeline.
+
+    This pipeline:
+    1. Ingests documents and creates embeddings
+    2. Creates a RAG assistant using the embeddings
+    3. Evaluates the assistant's performance
+    """
+    # First create the vector store with document embeddings
+    vector_store = ingest_and_embed(data_path="data/")
+
+    # Create the assistant using the vector store
+    assistant = create_assistant(vector_store=vector_store)
+
+    # Evaluate the assistant
+    evaluate_assistant(assistant=assistant)

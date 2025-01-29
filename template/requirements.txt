@@ -1,6 +1,10 @@
 zenml>=0.73.0
-llama-index
-chromadb
-traceloop-sdk
-yamlfix
-ruff
+langgraph
+langchain
+langchain_community
+dill
+langchain_openai
+unstructured[md]
+rich
+dill
+faiss-cpu
