@@ -4,7 +4,7 @@ from steps.ingest_and_embed import ingest_and_embed
 from zenml import pipeline
 
 
-@pipeline(enable_cache=False)
+@pipeline
 def create_assistant_pipeline():
     index = ingest_and_embed(data_path="data/")
     assistant = create_assistant(index)
