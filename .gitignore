@@ -175,3 +175,5 @@ cython_debug/
 template/design/
 template/data/vector_store/
 template/data
+data/vector_store
+design/
