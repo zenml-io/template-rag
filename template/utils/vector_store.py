@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 
-from config.constants import DEFAULT_SEARCH_RESULTS
+from config.constants import MAX_SEARCH_RESULTS
 
 
-def create_retrieve(vector_store: VectorStore, k: int = DEFAULT_SEARCH_RESULTS):
+def create_retrieve(vector_store: VectorStore, k: int = MAX_SEARCH_RESULTS):
     """Create a retrieval function for the RAG pipeline.
 
     Args:

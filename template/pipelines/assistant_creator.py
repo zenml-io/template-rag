@@ -8,7 +8,7 @@ from zenml.config import DockerSettings
 
 model = Model(
     name="ZenMLDocsAssistant",
-    description="This is an assistant that can answer questions about the ZenML documentation",
+    description="This is an assistant that answers questions about the ZenML documentation",
     license="MIT",
     audience="Developers",
     use_cases="Answer questions about the ZenML documentation",
@@ -39,10 +39,10 @@ def create_assistant_pipeline():
     3. Evaluates the assistant's performance
     """
     # First create the vector store with document embeddings
-    vector_store = ingest_and_embed(data_path="data/")
+    vector_store_config = ingest_and_embed(data_path="data/")
 
     # Create the assistant using the vector store
-    assistant = create_assistant(vector_store=vector_store)
+    assistant_config = create_assistant(vector_store_config=vector_store_config)
 
     # Evaluate the assistant
-    evaluate_assistant(assistant=assistant)
+    evaluate_assistant(config=assistant_config)
