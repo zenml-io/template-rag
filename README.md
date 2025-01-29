@@ -5,12 +5,18 @@ pipelines with ZenML. It provides a complete implementation of a RAG pipeline th
 
 - Document ingestion and chunking
 - Vector store integration for efficient retrieval
-- LLM integration for generation
+- LLM integration for generation using LangGraph for composable pipelines
 - API endpoint deployment
 - Evaluation metrics and monitoring
 
 The template contains all the necessary steps, pipeline configurations, stack components and
-other artifacts to get you started with building production-ready RAG applications.
+other artifacts to get you started with building production-ready RAG applications. The implementation
+in the `template/` directory showcases a LangGraph-based assistant that:
+
+- Ingests and embeds documents into a vector store
+- Uses a composable graph structure for flexible RAG workflows
+- Provides evaluation capabilities to assess assistant performance
+- Can be deployed as an API endpoint
 
 🔥 **Looking to build a RAG application with ZenML?**
 
