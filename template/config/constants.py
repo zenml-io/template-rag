@@ -3,6 +3,7 @@
 from enum import Enum
 from typing import Literal
 from pathlib import Path
+import os
 
 # Vector store settings
 CHUNK_SIZE = 1000
@@ -25,7 +26,7 @@ SUPPORTED_LLM_MODELS = Literal["gpt-3.5-turbo", "gpt-4"]
 
 # Default paths
 DEFAULT_VECTOR_STORE_PATH = str(Path("data") / "vector_store")
-DEFAULT_DOCS_PATH = "data"
+DEFAULT_DOCS_PATH = os.path.join(os.path.dirname(__file__), "..", "data")
 
 # Default model settings
 DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
@@ -33,16 +34,15 @@ DEFAULT_LLM_MODEL = "gpt-3.5-turbo"
 DEFAULT_TEMPERATURE = 0.7
 
 # Default prompt templates
-DEFAULT_QA_TEMPLATE = """You are a helpful AI assistant answering questions about ZenML.
-Use the following pieces of context to answer the question at the end.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
+DEFAULT_QA_TEMPLATE = """You are a helpful AI assistant. Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
 
 Context:
 {context}
 
 Question: {question}
 
-Answer in markdown format:"""
+Answer:"""
 
 # Validation settings
 MIN_CHUNK_SIZE = 100
@@ -55,3 +55,9 @@ MAX_TEMPERATURE = 2.0
 # Document processing
 DEFAULT_CHUNK_SIZE = 1000
 DEFAULT_CHUNK_OVERLAP = 200
+
+# Default test questions
+DEFAULT_TEST_QUESTIONS = [
+    "What are service connectors?",
+    "How do I deploy ZenML?"
+]

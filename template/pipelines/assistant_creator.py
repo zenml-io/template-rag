@@ -1,16 +1,21 @@
+"""Pipeline for creating and evaluating a RAG assistant."""
+
 import os
+from typing import List
 
 from steps.create_assistant import create_assistant
 from steps.evaluate_assistant import evaluate_assistant
 from steps.ingest_and_embed import ingest_and_embed
-from zenml import Model, pipeline
-from zenml.config import DockerSettings
-
+from config.assistant import AssistantConfig
 from config.constants import (
     DEFAULT_DOCS_PATH,
     DEFAULT_LLM_MODEL,
     DEFAULT_QA_TEMPLATE,
+    DEFAULT_TEST_QUESTIONS,
 )
+
+from zenml import Model, pipeline
+from zenml.config import DockerSettings
 
 model = Model(
     name="ZenMLDocsAssistant",
@@ -25,7 +30,8 @@ model = Model(
 
 
 @pipeline(
-    enable_cache=True,
+    name="create_assistant_pipeline",
+    enable_cache=False,
     model=model,
     settings={
         "docker": DockerSettings(
@@ -37,29 +43,27 @@ model = Model(
     },
 )
 def create_assistant_pipeline(
-    docs_path: str = DEFAULT_DOCS_PATH,
-    model: str = DEFAULT_LLM_MODEL,
-    temperature: float = 0.7,
-    qa_template: str = DEFAULT_QA_TEMPLATE,
-):
+    assistant_config: AssistantConfig = AssistantConfig(),
+    test_questions: List[str] = DEFAULT_TEST_QUESTIONS,
+) -> None:
     """Create a RAG assistant pipeline.
 
     Args:
-        docs_path: Path to the documents to ingest
-        model: Name of the LLM model to use
-        temperature: Temperature for LLM generation
-        qa_template: Template for QA prompts
+        assistant_config: Configuration for the RAG assistant
+        test_questions: List of test questions to evaluate
     """
-    # First create the vector store with document embeddings
-    vector_store_config = ingest_and_embed(docs_path=docs_path)
+    # Ingest and embed documents
+    vector_store = ingest_and_embed(config=assistant_config)
 
-    # Create the assistant using the vector store
-    assistant_config = create_assistant(
-        vector_store_config=vector_store_config,
-        model=model,
-        temperature=temperature,
-        qa_template=qa_template,
+    # Create assistant
+    graph = create_assistant(config=assistant_config, vector_store=vector_store)
+
+    # Evaluate assistant
+    evaluate_assistant(
+        graph=graph,
+        test_questions=test_questions,
+        llm_config={
+            "model": assistant_config.llm.model,
+            "temperature": assistant_config.llm.temperature
+        }
     )
-
-    # Evaluate the assistant
-    evaluate_assistant(config=assistant_config)
