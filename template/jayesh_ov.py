@@ -91,15 +91,9 @@ def create_assistant() -> Annotated[CompiledStateGraph, "rag_graph"]:
     return graph
 
 
-@step
-def simple_stuff() -> str:
-    return "hello"
-
-
 @pipeline(model=Model(name="langgraph_assistant", version="dev"), enable_cache=False)
 def rag_langgraph_assistant_builder():
     assistant = create_assistant()
-    simple_stuff()
     # evaluate_rag(graph)
 
 
