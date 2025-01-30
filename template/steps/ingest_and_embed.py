@@ -2,14 +2,13 @@
 
 from typing import Annotated
 
+from config.constants import CHUNK_OVERLAP, CHUNK_SIZE
+from config.models import EMBEDDINGS
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from materializers.vector_store_materializer import InMemoryVectorStoreMaterializer
 from zenml import step
-
-from config.constants import CHUNK_SIZE, CHUNK_OVERLAP
-from config.models import EMBEDDINGS
 
 
 @step(output_materializers=InMemoryVectorStoreMaterializer)

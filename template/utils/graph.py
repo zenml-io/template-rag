@@ -2,10 +2,9 @@
 
 from typing import Dict
 
-from langchain import hub
-
 from config.models import LLM
 from custom_types.state import State
+from langchain import hub
 
 
 def generate(state: State) -> Dict[str, str]:

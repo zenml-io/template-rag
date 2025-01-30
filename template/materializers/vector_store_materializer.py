@@ -4,14 +4,13 @@ import os
 from typing import Any, ClassVar, Optional, Tuple, Type
 
 import dill
+from config.constants import MAX_SEARCH_RESULTS
+from config.models import EMBEDDINGS
 from langchain_core.vectorstores import InMemoryVectorStore
+from utils.vector_store import extract_store_data
 from zenml.artifact_stores.base_artifact_store import BaseArtifactStore
 from zenml.enums import ArtifactType
 from zenml.materializers.base_materializer import BaseMaterializer
-
-from config.constants import MAX_SEARCH_RESULTS
-from config.models import EMBEDDINGS
-from utils.vector_store import extract_store_data
 
 
 class InMemoryVectorStoreMaterializer(BaseMaterializer):
