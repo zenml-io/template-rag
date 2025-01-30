@@ -12,9 +12,6 @@ from materializers.state_graph_materializer import StateGraphMaterializer
 from typing_extensions import TypedDict
 from zenml import step
 
-# Define prompt for question-answering
-prompt = hub.pull("rlm/rag-prompt")
-
 
 @step(output_materializers=StateGraphMaterializer)
 def create_assistant(
@@ -28,6 +25,8 @@ def create_assistant(
     Returns:
         A compiled state graph that can be used as a RAG assistant
     """
+    # Define prompt for question-answering
+    prompt = hub.pull("rlm/rag-prompt")
 
     class State(TypedDict):
         question: str
