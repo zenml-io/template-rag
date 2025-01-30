@@ -18,7 +18,7 @@ model = Model(
 
 
 @pipeline(
-    enable_cache=True,
+    enable_cache=False,
     model=model,
     settings={
         "docker": DockerSettings(
