@@ -11,27 +11,28 @@ from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain import hub
+from langchain_community.document_loaders import DirectoryLoader
 
-# Custom Materializer
+
 from zenml import Model, get_step_context, pipeline, step
 from zenml.materializers.base_materializer import BaseMaterializer
 import json
 import dill
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 llm = ChatOpenAI(model="gpt-4o-mini")
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 vector_store = InMemoryVectorStore(embeddings)
 
 
-# Load and chunk contents of the blog
-loader = WebBaseLoader(
-    web_paths=("https://lilianweng.github.io/posts/2023-06-23-agent/",),
-    bs_kwargs=dict(
-        parse_only=bs4.SoupStrainer(
-            class_=("post-content", "post-title", "post-header")
-        )
-    ),
+loader = DirectoryLoader(
+    "data/",
+    glob="**/*.md",
 )
 docs = loader.load()
 
@@ -86,23 +87,25 @@ def rag_logic() -> Annotated[CompiledStateGraph, "rag_graph"]:
     graph_builder = StateGraph(State).add_sequence([retrieve, generate])
     graph_builder.add_edge(START, "retrieve")
     graph = graph_builder.compile()
-
+    logger.info(
+        graph.invoke({"question": "What are ZenML service connectors?"})["answer"]
+    )
     return graph
 
 
-# @step
-# def evaluate_rag(cg: CompiledStateGraph) -> str:
-#     """Evaluate the RAG assistant with a test question."""
-#     prompt = {"question": "What are ZenML service connectors?"}
-#     response = cg.invoke(prompt)
-#     print(response["answer"])
-#     return response["answer"]
+@step
+def evaluate_rag(cg: CompiledStateGraph) -> str:
+    """Evaluate the RAG assistant with a test question."""
+    prompt = {"question": "What are ZenML service connectors?"}
+    response = cg.invoke(prompt)
+    logger.info(response["answer"])
+    return response["answer"]
 
 
-@pipeline(model=Model(name="rag_langgraph", version="dev"))
+@pipeline(model=Model(name="rag_langgraph", version="dev"), enable_cache=False)
 def rag_langgraph_build_evaluate_pipeline():
     graph = rag_logic()
-    # evaluate_rag(graph)
+    evaluate_rag(graph)
 
 
 if __name__ == "__main__":
