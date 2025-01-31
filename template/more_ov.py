@@ -90,6 +90,15 @@ def rag_logic() -> Annotated[CompiledStateGraph, "rag_graph"]:
     return graph
 
 
+# @step
+# def evaluate_rag(cg: CompiledStateGraph) -> str:
+#     """Evaluate the RAG assistant with a test question."""
+#     prompt = {"question": "What are ZenML service connectors?"}
+#     response = cg.invoke(prompt)
+#     print(response["answer"])
+#     return response["answer"]
+
+
 @pipeline(model=Model(name="rag_langgraph", version="dev"))
 def rag_langgraph_build_evaluate_pipeline():
     graph = rag_logic()
