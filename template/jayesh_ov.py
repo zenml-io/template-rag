@@ -62,7 +62,7 @@ class StateGraphMaterializer(BaseMaterializer):
     """Materializer to handle CompiledStateGraph objects."""
 
     ASSOCIATED_TYPES = (CompiledStateGraph,)
-    ASSOCIATED_ARTIFACT_TYPE = ArtifactType.MODEL
+    ASSOCIATED_ARTIFACT_TYPE = ArtifactType.DATA
 
     file_name = "state_graph.pkl"
 
