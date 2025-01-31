@@ -88,13 +88,23 @@ def create_assistant() -> Annotated[CompiledStateGraph, "rag_graph"]:
     graph_builder = StateGraph(State).add_sequence([retrieve, generate])
     graph_builder.add_edge(START, "retrieve")
     graph = graph_builder.compile()
+    print(graph)
     return graph
+
+
+@step
+def evaluate_rag(cg: CompiledStateGraph) -> str:
+    """Evaluate the RAG assistant with a test question."""
+    prompt = {"question": "What are ZenML service connectors?"}
+    response = cg.invoke(prompt)
+    print(response["answer"])
+    return response["answer"]
 
 
 @pipeline(model=Model(name="langgraph_assistant", version="dev"), enable_cache=False)
 def rag_langgraph_assistant_builder():
     assistant = create_assistant()
-    # evaluate_rag(graph)
+    evaluate_rag(assistant)
 
 
 if __name__ == "__main__":
